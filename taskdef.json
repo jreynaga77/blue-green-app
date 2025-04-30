@@ -1,0 +1,32 @@
+{
+    "family": "blue-green-task",
+    "networkMode": "awsvpc",
+    "requiresCompatibilities": [
+        "FARGATE"
+    ],
+    "cpu": "256",
+    "memory": "512",
+    "executionRoleArn": "arn:aws:iam::<AWS_ACCOUNT_ID>:role/blue-green-ecs-execution-role",
+    "taskRoleArn": "arn:aws:iam::<AWS_ACCOUNT_ID>:role/blue-green-ecs-task-role",
+    "containerDefinitions": [
+        {
+            "name": "app",
+            "image": "<IMAGE1_NAME>",
+            "essential": true,
+            "portMappings": [
+                {
+                    "containerPort": 80,
+                    "protocol": "tcp"
+                }
+            ],
+            "logConfiguration": {
+                "logDriver": "awslogs",
+                "options": {
+                    "awslogs-group": "/ecs/blue-green",
+                    "awslogs-region": "us-east-1",
+                    "awslogs-stream-prefix": "ecs"
+                }
+            }
+        }
+    ]
+} 
