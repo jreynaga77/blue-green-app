@@ -19,12 +19,22 @@ phases:
       - echo Pushing the Docker image...
       - docker push $REPOSITORY_URI:$IMAGE_TAG
       - docker push $REPOSITORY_URI:latest
-      - echo Writing image definitions file...
-      - printf '{"ImageURI":"%s"}' $REPOSITORY_URI:$IMAGE_TAG > imageDefinitions.json
-      - cat imageDefinitions.json
+      - echo '[{"name":"app","imageUri":"'$REPOSITORY_URI:$IMAGE_TAG'"}]' > imagedefinitions.json
+      - |
+        cat <<EOF > appspec.yaml
+        version: 0.0
+        Resources:
+          - TargetService:
+              Type: AWS::ECS::Service
+              Properties:
+                TaskDefinition: ""
+                LoadBalancerInfo:
+                  ContainerName: "app"
+                  ContainerPort: 80
+        EOF
 
 artifacts:
   files:
-    - imageDefinitions.json
+    - imagedefinitions.json
     - appspec.yaml
     - taskdef.json 
