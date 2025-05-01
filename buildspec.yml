@@ -28,8 +28,8 @@ phases:
           "requiresCompatibilities": ["FARGATE"],
           "cpu": "256",
           "memory": "512",
-          "executionRoleArn": "arn:aws:iam::$AWS_ACCOUNT_ID:role/blue-green-ecs-execution-role",
-          "taskRoleArn": "arn:aws:iam::$AWS_ACCOUNT_ID:role/blue-green-ecs-task-role",
+          "executionRoleArn": "arn:aws:iam::$AWS_ACCOUNT_ID:role/blue-green-execution-role",
+          "taskRoleArn": "arn:aws:iam::$AWS_ACCOUNT_ID:role/blue-green-task-role",
           "containerDefinitions": [
             {
               "name": "app",
