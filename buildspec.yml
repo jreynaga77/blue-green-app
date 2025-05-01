@@ -19,8 +19,47 @@ phases:
       - echo Pushing the Docker image...
       - docker push $REPOSITORY_URI:$IMAGE_TAG
       - docker push $REPOSITORY_URI:latest
-      - echo '[{"name":"app","imageUri":"'$REPOSITORY_URI:$IMAGE_TAG'"}]' > imagedefinitions.json
+      - echo Writing task definition file...
+      - |
+        cat << EOF > taskdef.json
+        {
+          "family": "blue-green",
+          "networkMode": "awsvpc",
+          "requiresCompatibilities": ["FARGATE"],
+          "cpu": "256",
+          "memory": "512",
+          "executionRoleArn": "arn:aws:iam::$AWS_ACCOUNT_ID:role/blue-green-execution-role",
+          "taskRoleArn": "arn:aws:iam::$AWS_ACCOUNT_ID:role/blue-green-task-role",
+          "containerDefinitions": [
+            {
+              "name": "app",
+              "image": "${REPOSITORY_URI}:${IMAGE_TAG}",
+              "essential": true,
+              "portMappings": [
+                {
+                  "containerPort": 80,
+                  "protocol": "tcp"
+                }
+              ]
+            }
+          ]
+        }
+        EOF
+      - echo Writing appspec file...
+      - |
+        cat << EOF > appspec.yaml
+        version: 0.0
+        Resources:
+          - TargetService:
+              Type: AWS::ECS::Service
+              Properties:
+                TaskDefinition: <TASK_DEFINITION>
+                LoadBalancerInfo:
+                  ContainerName: "app"
+                  ContainerPort: 80
+        EOF
 
 artifacts:
   files:
-    - imagedefinitions.json 
+    - appspec.yaml
+    - taskdef.json 
